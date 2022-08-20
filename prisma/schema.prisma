@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+  role     String
+
+  @@map("admin")
+}
+
+model Users {
+  id           String         @id @default(uuid())
+  name         String
+  email        String         @unique
+  password     String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  reservations Reservations[]
+
+  @@map("users")
+}
+
+model Reservations {
+  id           String         @id @default(uuid())
+  adults       Int
+  childrenP    Int
+  childrenNp   Int
+  total_people Int
+  res_date     OpeningDate[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  userId       String
+  user         Users          @relation(fields: [userId], references: [id])
+
+  @@map("reservations")
+}
+
+model OpeningDate {
+  id             String       @id @default(uuid())
+  date           String
+  book_available Int
+  book_confirmed Int
+  resId          String
+  menuId         String
+  reservation    Reservations @relation(fields: [resId], references: [id])
+  menu           Menu         @relation(fields: [menuId], references: [id])
+
+  @@map("openingDate")
+}
+
+model Menu {
+  id       String         @id @default(uuid())
+  visible  Boolean        @default(false)
+  menuDate OpeningDate[]
+
+  @@map("menu")
+}
